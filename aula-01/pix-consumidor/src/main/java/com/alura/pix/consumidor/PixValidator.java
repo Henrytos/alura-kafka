@@ -8,6 +8,7 @@ import com.alura.pix.repository.KeyRepository;
 import com.alura.pix.repository.PixRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,20 +21,27 @@ public class PixValidator {
     private PixRepository pixRepository;
 
     @KafkaListener(topics = "pix-topic", groupId = "grupo")
-    public void processaPix(PixDTO pixDTO) {
-        System.out.println("Pix  recebido: " + pixDTO.getIdentifier());
+    public void processaPix(PixDTO pixDTO, Acknowledgment acknowledgment) {
 
-        Pix pix = pixRepository.findByIdentifier(pixDTO.getIdentifier());
+        System.out.println("Recebendo pix: " + pixDTO.getIdentifier());
 
-        Key origem = keyRepository.findByChave(pixDTO.getChaveOrigem());
-        Key destino = keyRepository.findByChave(pixDTO.getChaveDestino());
+        Pix pix = this.pixRepository.findByIdentifier(pixDTO.getIdentifier());
 
-        if (origem == null || destino == null) {
+        Key origem = this.keyRepository.findByChave(pixDTO.getChaveOrigem());
+
+        Key destion = this.keyRepository.findByChave(pixDTO.getChaveDestino());
+
+        if (origem == null || destion == null || pix == null || !pix.getChaveOrigem().equals(pix.getChaveOrigem())
+                || !pix.getChaveDestino().equals(pix.getChaveDestino())
+        ) {
             pix.setStatus(PixStatus.ERRO);
         } else {
             pix.setStatus(PixStatus.PROCESSADO);
         }
-        pixRepository.save(pix);
+
+        this.pixRepository.save(pix);
+
+        acknowledgment.acknowledge();
     }
 
 }
