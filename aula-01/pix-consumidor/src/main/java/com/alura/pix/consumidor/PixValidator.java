@@ -1,6 +1,6 @@
 package com.alura.pix.consumidor;
 
-import com.alura.pix.dto.PixDTO;
+import com.alura.pix.avro.PixRecord;
 import com.alura.pix.dto.PixStatus;
 import com.alura.pix.exception.KeyNotFoundException;
 import com.alura.pix.model.Key;
@@ -32,18 +32,18 @@ public class PixValidator {
             autoCreateTopics = "true",
             include = Exception.class
     )
-    public void processaPix(PixDTO pixDTO, Acknowledgment acknowledgment) {
+    public void processaPix(PixRecord pixDTO, Acknowledgment acknowledgment) {
 
-        System.out.println("Recebendo pix: " + pixDTO.getIdentifier());
+        System.out.println("Recebendo pix: " + pixDTO.getIdentificador());
         System.out.println(pixDTO);
 
-        Pix pix = this.pixRepository.findByIdentifier(pixDTO.getIdentifier());
+        Pix pix = this.pixRepository.findByIdentifier(pixDTO.getIdentificador().toString());
         if (pix == null)
             throw new RuntimeException("Pix não encontrado");
 
-        Key origem = this.keyRepository.findByChave(pixDTO.getChaveOrigem());
+        Key origem = this.keyRepository.findByChave(pixDTO.getChaveOrigem().toString());
 
-        Key destion = this.keyRepository.findByChave(pixDTO.getChaveDestino());
+        Key destion = this.keyRepository.findByChave(pixDTO.getChaveDestino().toString());
 
         if (destion == null || origem == null)
             throw new KeyNotFoundException();
