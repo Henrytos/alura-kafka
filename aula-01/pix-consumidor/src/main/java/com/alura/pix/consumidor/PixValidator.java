@@ -35,23 +35,29 @@ public class PixValidator {
     public void processaPix(PixDTO pixDTO, Acknowledgment acknowledgment) {
 
         System.out.println("Recebendo pix: " + pixDTO.getIdentifier());
+        System.out.println(pixDTO);
 
         Pix pix = this.pixRepository.findByIdentifier(pixDTO.getIdentifier());
+        if (pix == null)
+            throw new RuntimeException("Pix não encontrado");
 
         Key origem = this.keyRepository.findByChave(pixDTO.getChaveOrigem());
 
         Key destion = this.keyRepository.findByChave(pixDTO.getChaveDestino());
 
-        if (origem == null || destion == null || pix == null || !pix.getChaveOrigem().equals(pix.getChaveOrigem())
-                || !pix.getChaveDestino().equals(pix.getChaveDestino())
-        ) {
-            pix.setStatus(PixStatus.ERRO);
+        if (destion == null || origem == null)
             throw new KeyNotFoundException();
+
+        if (!pix.getChaveOrigem().equals(pixDTO.getChaveOrigem())
+                || !pix.getChaveDestino().equals(pixDTO.getChaveDestino())) {
+            pix.setStatus(PixStatus.ERRO);
         } else {
             pix.setStatus(PixStatus.PROCESSADO);
         }
 
         this.pixRepository.save(pix);
+
+        System.out.println("Pix consumido com sucesso");
 
         acknowledgment.acknowledge();
     }

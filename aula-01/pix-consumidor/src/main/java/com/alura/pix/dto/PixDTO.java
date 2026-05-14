@@ -16,4 +16,16 @@ public class PixDTO {
     private Double valor;
     private LocalDateTime dataTransferencia;
     private PixStatus status;
+
+    @Override
+    public String toString() {
+        return "PixDTO{" +
+                "identifier='" + identifier + '\'' +
+                ", chaveOrigem='" + chaveOrigem + '\'' +
+                ", chaveDestino='" + chaveDestino + '\'' +
+                ", valor=" + valor +
+                ", dataTransferencia=" + dataTransferencia +
+                ", status=" + status +
+                '}';
+    }
 }
